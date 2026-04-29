@@ -19,6 +19,15 @@ export * from './tinyformat';
 export * from './compat';
 export * from './script/addresstype';
 
+// Layer 1 - Address/Encoding
+export * from './crypto';
+export * from './hash';
+export * from './pubkey';
+export * from './bech32';
+export * from './base58';
+export * from './compressor';
+export * from './key_io';
+
 // Attributes - avoid naming conflicts
 import * as attributesModule from './attributes';
 export const {
