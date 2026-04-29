@@ -21,7 +21,20 @@ export enum AddressType {
     BECH32M = 'bech32m',
 }
 
+/**
+ * No destination - used when a transaction output doesn't have a specific address type
+ */
+export class CNoDestination {
+    isNull(): boolean {
+        return true;
+    }
+}
+
+/**
+ * Any valid destination type
+ */
 export type CTxDestination = 
+    | CNoDestination
     | PKHash
     | ScriptHash
     | WitnessPKHash
@@ -150,6 +163,10 @@ export class WitnessScriptHash {
     }
 }
 
+export function isNoDestination(dest: CTxDestination): dest is CNoDestination {
+    return dest instanceof CNoDestination;
+}
+
 export function isPKHash(dest: CTxDestination): dest is PKHash {
     return dest instanceof PKHash;
 }
@@ -164,6 +181,10 @@ export function isWitnessPKHash(dest: CTxDestination): dest is WitnessPKHash {
 
 export function isWitnessScriptHash(dest: CTxDestination): dest is WitnessScriptHash {
     return dest instanceof WitnessScriptHash;
+}
+
+export function isValidDestination(dest: CTxDestination): boolean {
+    return !(dest instanceof CNoDestination);
 }
 
 export function getOutputType(dest: CTxDestination): OutputType {

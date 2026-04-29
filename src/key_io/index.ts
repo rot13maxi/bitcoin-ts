@@ -8,7 +8,7 @@
  * This is a TypeScript port of Bitcoin Core's key_io.h/cpp
  */
 
-import { PKHash, ScriptHash, WitnessPKHash, WitnessScriptHash, CTxDestination, CNoDestination, isPKHash, isScriptHash, isWitnessPKHash, isWitnessScriptHash } from '../script/addresstype';
+import { PKHash, ScriptHash, WitnessPKHash, WitnessScriptHash, CTxDestination, CNoDestination, isValidDestination, isPKHash, isScriptHash, isWitnessPKHash, isWitnessScriptHash } from '../script/addresstype';
 import { EncodeBase58Check, DecodeBase58Check, decodeBase58Check, encodeBase58Check } from '../base58';
 import { encodeSegWitAddress, decodeSegWitAddress, Encoding } from '../bech32';
 
@@ -241,13 +241,6 @@ export function isValidDestinationString(str: string, params: ChainParams = MAIN
     return !(dest instanceof CNoDestination);
 }
 
-/**
- * Check if a destination is valid (not CNoDestination)
- */
-export function isValidDestination(dest: CTxDestination): boolean {
-    return !(dest instanceof CNoDestination);
-}
-
 // Re-export for convenience
 export { PKHash, ScriptHash, WitnessPKHash, WitnessScriptHash, CTxDestination, CNoDestination };
-export { isPKHash, isScriptHash, isWitnessPKHash, isWitnessScriptHash } from '../script/addresstype';
+export { isPKHash, isScriptHash, isWitnessPKHash, isWitnessScriptHash, isValidDestination } from '../script/addresstype';

@@ -21,7 +21,7 @@ import { CPubKey, CKeyID, XOnlyPubKey } from './pubkey';
 import { Encode, Decode, Encoding, encodeSegWitAddress, decodeSegWitAddress } from './bech32';
 import { EncodeBase58, DecodeBase58, EncodeBase58Check, DecodeBase58Check } from './base58';
 import { CompressAmount, DecompressAmount, CompressScript } from './compressor';
-import { encodeDestination, decodeDestination, MAINNET, TESTNET, PKHash, WitnessPKHash } from './key_io';
+import { encodeDestination, decodeDestination, isValidDestinationString, MAINNET, TESTNET, PKHash, WitnessPKHash } from './key_io';
 
 // Test uint256 basic operations
 function test_uint256() {
