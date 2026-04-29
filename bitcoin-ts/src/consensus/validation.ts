@@ -9,7 +9,7 @@
  */
 
 import { WITNESS_SCALE_FACTOR } from "./consensus";
-import { CTransaction } from "../primitives";
+import { CTransaction, isCoinBase, hasWitness, computeTotalSize } from "../primitives";
 
 /** Minimum size of a witness commitment structure. Defined in BIP 141. **/
 export const MINIMUM_WITNESS_COMMITMENT = 38;
@@ -153,9 +153,9 @@ export function MakeBlockValidationState(
  */
 export function GetTransactionWeight(tx: CTransaction): number {
   const stripped_size = 0; // TODO: compute from tx.ToDiskBlock()
-  const total_size = tx.computeTotalSize();
+  const total_size = computeTotalSize(tx);
   // Simple approximation: use a heuristic based on hasWitness
-  const stripped = tx.hasWitness() ? total_size - 200 : total_size;
+  const stripped = hasWitness(tx) ? total_size - 200 : total_size;
   return stripped * (WITNESS_SCALE_FACTOR - 1) + total_size;
 }
 
@@ -175,7 +175,7 @@ export function GetWitnessCommitmentIndex(block: MinimalCBlock): number {
   if (block.vtx.length === 0) return commitpos;
 
   const coinbase = block.vtx[0];
-  if (coinbase.isCoinBase()) {
+  if (isCoinBase(coinbase)) {
     for (let o = 0; o < coinbase.vout.length; o++) {
       const vout = coinbase.vout[o];
       const scriptPubKey = vout.scriptPubKey;
