@@ -7,7 +7,7 @@
  * This is a TypeScript port of Bitcoin Core's consensus/tx_verify.h and tx_verify.cpp
  */
 
-import { CTransaction, COutPoint } from "../primitives";
+import { CTransaction, COutPoint, isCoinBase, getValueOut } from "../primitives";
 import {
   TxValidationState,
   TxValidationResult,
@@ -92,7 +92,7 @@ export function GetP2SHSigOpCount(
   tx: CTransaction,
   inputs: MinimalCoinsView,
 ): number {
-  if (tx.isCoinBase()) return 0;
+  if (isCoinBase(tx)) return 0;
 
   let nSigOps = 0;
   for (let i = 0; i < tx.vin.length; i++) {
@@ -116,11 +116,11 @@ export function GetTransactionSigOpCost(
 ): number {
   let nSigOps = GetLegacySigOpCount(tx) * WITNESS_SCALE_FACTOR;
 
-  if (tx.isCoinBase()) {
+  if (isCoinBase(tx)) {
     return nSigOps;
   }
 
-  if ((flags.as_int() & BigInt(0x00000100)) !== 0n) {
+  if ((BigInt(flags) & BigInt(0x00000100)) !== 0n) {
     // SCRIPT_VERIFY_P2SH
     nSigOps += GetP2SHSigOpCount(tx, inputs) * WITNESS_SCALE_FACTOR;
   }
@@ -319,7 +319,7 @@ export function CheckTxInputs(
   }
 
   // GetValueOut() is guaranteed valid by the calling code
-  const valueOut = tx.getValueOut();
+  const valueOut = getValueOut(tx);
   if (nValueIn < valueOut) {
     state.invalid(
       TxValidationResult.TX_CONSENSUS,
