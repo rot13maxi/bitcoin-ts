@@ -27,6 +27,11 @@ export const MAX_STACK_SIZE = 1000;
 // otherwise as UNIX timestamp
 export const LOCKTIME_THRESHOLD = 500000000;
 
+// Deno-compatible bytes-to-hex helper (Buffer not available in Deno)
+export function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // Maximum nLockTime
 export const LOCKTIME_MAX = 0xffffffff;
 
@@ -667,7 +672,7 @@ export class CScript {
       } else if (op >= 0x01 && op <= 0x4b) {
         // Direct push
         const len = op;
-        parts.push(`0x${Buffer.from(this.data.subarray(pos + 1, pos + 1 + len)).toString('hex')}`);
+        parts.push(`0x${bytesToHex(this.data.subarray(pos + 1, pos + 1 + len))}`);
         pos += 1 + len;
       } else {
         parts.push(GetOpName(op as Opcode));

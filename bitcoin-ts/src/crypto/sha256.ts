@@ -164,7 +164,7 @@ export class CSHA256 {
  */
 export async function sha256WebCrypto(data: Uint8Array): Promise<Uint8Array> {
   if (typeof crypto !== 'undefined' && crypto.subtle) {
-    const hash = await crypto.subtle.digest('SHA-256', data);
+    const hash = await crypto.subtle.digest('SHA-256', data.buffer as ArrayBuffer);
     return new Uint8Array(hash);
   }
   // Fallback to pure JS

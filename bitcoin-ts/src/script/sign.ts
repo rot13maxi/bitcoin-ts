@@ -5,7 +5,7 @@
  * @module script/sign
  */
 
-import { CScript, Opcode } from './script';
+import { CScript, Opcode, bytesToHex } from './script';
 import { SigVersion, ScriptExecutionData } from './interpreter';
 
 /**
@@ -219,7 +219,7 @@ export function SignTransaction(
   let success = true;
   for (let i = 0; i < mtx.inputs.length; i++) {
     const input = mtx.inputs[i];
-    const prevoutKey = Buffer.from(input.prevout.hash).toString('hex') + ':' + input.prevout.n;
+    const prevoutKey = bytesToHex(input.prevout.hash) + ':' + input.prevout.n;
     const txout = coins.get(prevoutKey);
 
     if (!txout) {

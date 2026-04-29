@@ -1,9 +1,7 @@
 /**
  * Bitcoin TypeScript Library
- * 
+ *
  * A TypeScript port of Bitcoin Core cryptographic primitives and modules.
- * 
- * @package bitcoin-ts
  */
 
 // Re-export crypto module
@@ -31,20 +29,36 @@ export * from './txrequest';
 export * from './txmempool';
 
 // Re-export Layer 5: Validation/Network
-// Re-export netaddress (network address types: Network, CNetAddr, CSubNet, CService)
 export * from './netaddress';
-
-// Re-export protocol (P2P protocol types: NetMsgType, ServiceFlags, CAddress, CInv)
 export * from './protocol';
-
-// Re-export addrman (address manager: AddrMan, AddressPosition, AddrInfo)
 export * from './addrman';
-
-// Re-export banman (ban management: BanMan, CBanEntry, banmap_t)
 export * from './banman';
-
-// Re-export net (P2P networking constants and types)
 export * from './net';
-
-// Re-export validation (block/tx validation: CBlockIndex, MempoolAcceptResult)
 export * from './validation';
+
+// Re-export Layer 6: Wallet/RPC/Index (PSBT types override primitives types)
+export {
+    // PSBT types
+    PSBT_MAGIC_BYTES,
+    PSBT_SEPARATOR,
+    PSBTInput,
+    PSBTOutput,
+    PartiallySignedTransaction,
+    PSBTError,
+    PSBTRole,
+    createPSBT,
+    psbtInputSigned,
+    countPSBTUnsignedInputs,
+} from './psbt';
+
+// Export rest of psbt (excluding duplicate types)
+export * from './psbt';
+
+// Re-export blockfilter
+export * from './blockfilter';
+
+// Re-export txindex
+export * from './txindex';
+
+// Re-export external_signer
+export * from './external_signer';
