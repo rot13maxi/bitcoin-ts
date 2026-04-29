@@ -358,3 +358,68 @@ export function SERIALIZE_METHODS<T extends Serializable>(
 ): { serialize: (stream: Stream) => void; unserialize: (stream: Stream) => void } {
     return defineSerializeMethods('', obj, ...fields);
 }
+
+/**
+ * Write a VarInt (variable-length integer) to a stream.
+ * Used for Bitcoin Core's VARINT encoding:
+ * - 1 byte: values 0-252
+ * - 3 bytes (0xfd prefix): values 253-0xFFFF
+ * - 5 bytes (0xfe prefix): values 0x10000-0xFFFFFFFF
+ * - 9 bytes (0xff prefix): values 0x100000000-0xFFFFFFFFFFFFFFFF
+ */
+export function writeVarInt(stream: Stream, value: number): void {
+    if (value < 0xfd) {
+        stream.write(new Uint8Array([value]));
+    } else if (value <= 0xffff) {
+        stream.write(new Uint8Array([
+            0xfd,
+            value & 0xff,
+            (value >> 8) & 0xff,
+        ]));
+    } else if (value <= 0xffffffff) {
+        stream.write(new Uint8Array([
+            0xfe,
+            value & 0xff,
+            (value >> 8) & 0xff,
+            (value >> 16) & 0xff,
+            (value >> 24) & 0xff,
+        ]));
+    } else {
+        // Write as two 32-bit parts
+        const hi = Math.floor(value / 0x100000000);
+        const lo = value % 0x100000000;
+        stream.write(new Uint8Array([
+            0xff,
+            lo & 0xff,
+            (lo >> 8) & 0xff,
+            (lo >> 16) & 0xff,
+            (lo >> 24) & 0xff,
+            hi & 0xff,
+            (hi >> 8) & 0xff,
+            (hi >> 16) & 0xff,
+            (hi >> 24) & 0xff,
+        ]));
+    }
+}
+
+/**
+ * Read a VarInt from a stream.
+ */
+export function readVarInt(stream: Stream): number {
+    const prefix = stream.read(1)[0];
+    if (prefix < 0xfd) {
+        return prefix;
+    } else if (prefix === 0xfd) {
+        const data = stream.read(2);
+        return data[0] | (data[1] << 8);
+    } else if (prefix === 0xfe) {
+        const data = stream.read(4);
+        return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+    } else {
+        // 0xff: read 8 bytes
+        const data = stream.read(8);
+        const lo = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+        const hi = data[4] | (data[5] << 8) | (data[6] << 16) | (data[7] << 24);
+        return lo + hi * 0x100000000;
+    }
+}

@@ -112,6 +112,18 @@ export abstract class BaseBlob {
         return this.m_data;
     }
 
+    /**
+     * Get the data as a big-endian Uint8Array.
+     * Returns a copy to avoid mutation.
+     */
+    getDataBE(): Uint8Array {
+        const result = new Uint8Array(this.WIDTH);
+        for (let i = 0; i < this.WIDTH; i++) {
+            result[i] = this.m_data[this.WIDTH - 1 - i];
+        }
+        return result;
+    }
+
     begin(): Uint8Array {
         return this.m_data;
     }
@@ -250,3 +262,8 @@ export class Wtxid extends uint256 {
         super(value as Uint8Array | readonly number[] | string);
     }
 }
+
+/** @deprecated Use Txid.fromHex instead */
+export { Txid as uint256Txid };
+/** @deprecated Use Wtxid.fromHex instead */
+export { Wtxid as uint256Wtxid };

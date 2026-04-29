@@ -178,10 +178,23 @@ export class Prevector<T> {
         other._capacity = tempCapacity;
         other._data = tempData;
         other._isInline = tempIsInline;
+        other._isInline = tempIsInline;
     }
 
     toArray(): T[] {
         return this._data.slice(0, this._size) as T[];
+    }
+
+    /**
+     * Get the total allocated memory in bytes.
+     * Returns 0 for inline storage (no dynamic allocation).
+     */
+    allocated_memory(): number {
+        if (this._isInline) {
+            return 0; // Inline storage - no dynamic allocation
+        }
+        // Dynamic storage: capacity * element size (estimate 16 bytes per element)
+        return this._capacity * 16;
     }
 }
 

@@ -85,6 +85,8 @@ export function constevalHexDigit(c: string): number {
     return d;
 }
 
+export { Join, RemovePrefix, LogEscapeMessage } from './string';
+
 export function RemovePrefixView(input: string, prefix: string): string {
     if (input.startsWith(prefix)) {
         return input.slice(prefix.length);

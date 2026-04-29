@@ -41,3 +41,10 @@ export const {
     ARRAY_SIZE: BTC_ARRAY_SIZE,
     static_assert: BTC_static_assert
 } = attributesModule;
+
+// Layer 4 - Memory/State (coins, txmempool, memusage, txrequest, checkqueue, logging)
+export * from './memusage';
+export * from './coins';
+export * from './txrequest';
+export * from './checkqueue';
+export * from './logging';

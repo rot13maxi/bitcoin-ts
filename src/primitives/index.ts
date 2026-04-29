@@ -297,3 +297,77 @@ export function makeTransactionRef(tx: CMutableTransaction | CTransaction): CTra
     }
     return tx;
 }
+
+/**
+ * Represents a transaction identifier, either a txid or wtxid.
+ * Used throughout the transaction request tracking system.
+ */
+export class GenTxid {
+    private readonly m_is_wtxid: boolean;
+    private readonly m_hash: uint256;
+
+    constructor(is_wtxid: boolean, hash: uint256) {
+        this.m_is_wtxid = is_wtxid;
+        this.m_hash = hash;
+    }
+
+    /** Create a GenTxid from a txid */
+    static fromTxid(txid: Txid): GenTxid {
+        return new GenTxid(false, txid);
+    }
+
+    /** Create a GenTxid from a wtxid */
+    static fromWtxid(wtxid: Wtxid): GenTxid {
+        return new GenTxid(true, wtxid);
+    }
+
+    isWtxid(): boolean {
+        return this.m_is_wtxid;
+    }
+
+    getHash(): uint256 {
+        return this.m_hash;
+    }
+
+    /** Convert to Uint256 for use as a key in maps */
+    ToUint256(): uint256 {
+        return this.m_hash;
+    }
+
+    equals(other: GenTxid): boolean {
+        return this.m_is_wtxid === other.m_is_wtxid &&
+            this.m_hash.compare(other.m_hash) === 0;
+    }
+
+    toString(): string {
+        return this.m_is_wtxid ? `wtxid:${this.m_hash.toString()}` : `txid:${this.m_hash.toString()}`;
+    }
+}
+
+/**
+ * A reference to a transaction output (CTransaction wrapper).
+ * This is a lightweight reference type used throughout the codebase.
+ */
+export type TxRef = CTransactionRef;
+
+/**
+ * Check if a transaction is a standard coinbase transaction.
+ */
+export function IsCoinBase(tx: CTransaction): boolean {
+    return tx.isCoinBase();
+}
+
+/**
+ * Transaction input sequence number constants.
+ */
+export const DEFAULT_MAX_REPLACEMENT_FEE = 0; // RBF disabled by default
+
+/**
+ * Calculate the virtual transaction size (weight / 4).
+ */
+export function GetVirtualTransactionSize(tx: CTransaction): number {
+    // Weight is computed as: base_size * 3 + total_size
+    // Virtual size = weight / 4 = (base_size * 3 + total_size) / 4
+    // For simplicity, approximate as total_size (since most txs don't have witness)
+    return Math.ceil(tx.computeTotalSize() / 4);
+}

@@ -8,3 +8,4 @@
 
 export { CSHA256, sha256, sha256d, sha256Hex } from './sha256';
 export { CRIPEMD160, ripemd160, ripemd160Hex } from './ripemd160';
+export { CSipHasher, SipHash_2_4, SipHash_2_4_AsNumber } from './siphash';
