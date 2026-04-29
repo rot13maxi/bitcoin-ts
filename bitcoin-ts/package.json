@@ -1,0 +1,26 @@
+{
+  "name": "bitcoin-ts",
+  "version": "0.1.0",
+  "description": "TypeScript port of Bitcoin Core cryptographic primitives and script engine",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "bitcoin",
+    "cryptocurrency",
+    "crypto",
+    "script",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
