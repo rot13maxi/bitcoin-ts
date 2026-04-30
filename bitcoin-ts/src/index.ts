@@ -37,13 +37,15 @@ export * from './net';
 export * from './validation';
 
 // Re-export Layer 6: Wallet/RPC/Index (PSBT types override primitives types)
-export {
-    // PSBT types
-    PSBT_MAGIC_BYTES,
-    PSBT_SEPARATOR,
+export type {
     PSBTInput,
     PSBTOutput,
     PartiallySignedTransaction,
+} from './psbt';
+
+export {
+    PSBT_MAGIC_BYTES,
+    PSBT_SEPARATOR,
     PSBTError,
     PSBTRole,
     createPSBT,
@@ -51,11 +53,11 @@ export {
     countPSBTUnsignedInputs,
 } from './psbt';
 
-// Export rest of psbt (excluding duplicate types)
+// Export rest of psbt
 export * from './psbt';
 
 // Re-export blockfilter
-export * from './blockfilter';
+export type * from './blockfilter';
 
 // Re-export txindex
 export * from './txindex';

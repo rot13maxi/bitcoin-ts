@@ -66,17 +66,16 @@ export {
   TAPROOT_CONTROL_MAX_NODE_COUNT,
   TAPROOT_CONTROL_MAX_SIZE,
   
-  // Interfaces
-  SignatureChecker,
-  
   // Functions
   EvalScript,
   VerifyScript,
   CountWitnessSigOps,
 } from './interpreter';
 
+export type { SignatureChecker } from './interpreter';
+
 // Signing
-export {
+export type {
   SignOptions,
   BaseSignatureCreator,
   BaseSignatureChecker,
@@ -86,6 +85,9 @@ export {
   SignatureData,
   TaprootSpendData,
   TaprootBuilder,
+} from './sign';
+
+export {
   DataFromTransaction,
   UpdateInput,
   IsSegWitOutput,
@@ -98,7 +100,6 @@ export {
 // Standard scripts
 export {
   ScriptType,
-  ScriptSolution,
   GetScriptType,
   Solver,
   IsStandard,
@@ -109,3 +110,5 @@ export {
   CreateP2TRScript,
   CreateMultisigScript,
 } from './standard';
+
+export type { ScriptSolution } from './standard';

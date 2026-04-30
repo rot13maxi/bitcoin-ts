@@ -23,11 +23,14 @@ export {
     BlockValidationResult,
     ValidationMode,
     ValidationState,
-    TxValidationState,
-    BlockValidationState,
     MakeTxValidationState,
     MakeBlockValidationState,
     GetWitnessCommitmentIndex,
+} from "../consensus/validation";
+
+export type {
+    TxValidationState,
+    BlockValidationState,
     MinimalCBlock,
 } from "../consensus/validation";
 

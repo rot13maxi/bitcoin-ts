@@ -126,4 +126,4 @@ export interface Peer {
 import { ServiceFlags } from "../protocol";
 import { CAddress } from "../protocol";
 
-export { ServiceFlags, CAddress };
+export type { ServiceFlags, CAddress };

@@ -54,7 +54,7 @@ export {
 } from './types';
 
 // PSBT types (excluding duplicates from primitives)
-export {
+export type {
     CExtPubKey,
     PSBTProprietary,
     SigPair,
@@ -68,10 +68,11 @@ export {
     CTxOutWitness,
     CMutableTransaction,
     PartiallySignedTransaction,
-    
+} from './types';
+
+export {
     PSBTError,
     PSBTRole,
-    
     psbtErrorString,
     psbtRoleName,
     createPSBTInput,

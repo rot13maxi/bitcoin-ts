@@ -13,8 +13,8 @@ import { KeyOriginInfo, SignatureData } from '../script/sign';
 // Import transaction types from primitives
 import { COutPoint, CTxIn, CTxOut, CTransaction, Txid, Wtxid } from '../primitives';
 
-// Re-export transaction types for convenience
-export { COutPoint, CTxIn, CTxOut, CTransaction, Txid, Wtxid };
+// Re-export transaction types for convenience (type-only to avoid TS2308 duplicate export)
+export type { COutPoint, CTxIn, CTxOut, CTransaction, Txid, Wtxid };
 
 // PSBT magic bytes: "psbt" + 0xff
 export const PSBT_MAGIC_BYTES = new Uint8Array([0x70, 0x73, 0x62, 0x74, 0xff]);
