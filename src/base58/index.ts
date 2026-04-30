@@ -136,21 +136,27 @@ export function EncodeBase58Check(input: Uint8Array | readonly number[]): string
  * Decode a Base58Check string
  */
 export function DecodeBase58Check(str: string, maxRetLen: number = 0): Uint8Array | null {
-    const decoded = DecodeBase58(str, (maxRetLen > 0 ? maxRetLen + 4 : 0) as number);
+    // Decode WITHOUT a length limit to get the full data including checksum.
+    // This fixes the bug where leading '1' characters in addresses consume
+    // part of the maxRetLen budget, causing checksum truncation.
+    const decoded = DecodeBase58(str, 0);
     if (!decoded) return null;
     
     if (decoded.length < 4) return null;
-    if (maxRetLen > 0 && decoded.length - 4 > maxRetLen) {
-        return decoded.slice(0, maxRetLen);
-    }
     
-    const data = decoded.slice(0, decoded.length - 4);
-    const expectedChecksum = decoded.slice(decoded.length - 4);
+    const dataLength = decoded.length - 4;
+    const data = decoded.slice(0, dataLength);
+    const expectedChecksum = decoded.slice(dataLength);
     const actualChecksum = sha256d(data).slice(0, 4);
     
     // Compare checksums
     for (let i = 0; i < 4; i++) {
         if (expectedChecksum[i] !== actualChecksum[i]) return null;
+    }
+    
+    // Apply maxRetLen only to the payload (after checksum verification)
+    if (maxRetLen > 0 && dataLength > maxRetLen) {
+        return data.slice(0, maxRetLen);
     }
     
     return data;
