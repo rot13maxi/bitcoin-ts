@@ -171,7 +171,7 @@ export class uint160 extends BaseBlob {
         }
     }
 
-    static fromHex(str: string): uint160 | null {
+    static override fromHex(str: string): uint160 | null {
         if (!isHexString(str) || str.length !== 40) return null;
         return new uint160(str);
     }
@@ -217,7 +217,7 @@ export class uint256 extends BaseBlob {
         }
     }
 
-    static fromHex(str: string): uint256 | null {
+    static override fromHex(str: string): uint256 | null {
         if (!isHexString(str) || str.length !== 64) return null;
         return new uint256(str);
     }

@@ -242,5 +242,6 @@ export function isValidDestinationString(str: string, params: ChainParams = MAIN
 }
 
 // Re-export for convenience
-export { PKHash, ScriptHash, WitnessPKHash, WitnessScriptHash, CTxDestination, CNoDestination };
+export { PKHash, ScriptHash, WitnessPKHash, WitnessScriptHash, CNoDestination };
+export type { CTxDestination };
 export { isPKHash, isScriptHash, isWitnessPKHash, isWitnessScriptHash, isValidDestination } from '../script/addresstype';

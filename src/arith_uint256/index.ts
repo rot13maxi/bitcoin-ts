@@ -312,7 +312,7 @@ export class arith_uint256 extends BaseUint {
         }
     }
 
-    clone(): arith_uint256 {
+    override clone(): arith_uint256 {
         const result = new arith_uint256();
         result.pn.set(this.pn);
         return result;
