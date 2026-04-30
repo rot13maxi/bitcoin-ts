@@ -375,7 +375,7 @@ export class CCoinsViewCache extends CCoinsViewBacked {
     /**
      * Get a coin from cache or base view
      */
-    GetCoin(outpoint: COutPoint): Coin | null {
+    override GetCoin(outpoint: COutPoint): Coin | null {
         const entry = this.cacheCoins.get(outpoint);
         if (entry) {
             if (entry.coin.IsSpent()) {
@@ -398,7 +398,7 @@ export class CCoinsViewCache extends CCoinsViewBacked {
     /**
      * Check if we have a coin (in cache or base)
      */
-    HaveCoin(outpoint: COutPoint): boolean {
+    override HaveCoin(outpoint: COutPoint): boolean {
         const entry = this.cacheCoins.get(outpoint);
         if (entry) {
             return !entry.coin.IsSpent();
@@ -422,7 +422,7 @@ export class CCoinsViewCache extends CCoinsViewBacked {
     /**
      * Get the current best block hash
      */
-    GetBestBlock(): Uint8Array {
+    override GetBestBlock(): Uint8Array {
         return this.m_block_hash;
     }
 
@@ -622,7 +622,7 @@ export class CCoinsViewErrorCatcher extends CCoinsViewBacked {
         this.err_callbacks.push(f);
     }
 
-    GetCoin(outpoint: COutPoint): Coin | null {
+    override GetCoin(outpoint: COutPoint): Coin | null {
         try {
             return this.base.GetCoin(outpoint);
         } catch (e) {
@@ -633,7 +633,7 @@ export class CCoinsViewErrorCatcher extends CCoinsViewBacked {
         }
     }
 
-    HaveCoin(outpoint: COutPoint): boolean {
+    override HaveCoin(outpoint: COutPoint): boolean {
         try {
             return this.base.HaveCoin(outpoint);
         } catch (e) {
