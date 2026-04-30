@@ -157,12 +157,12 @@ export class uint160 extends BaseBlob {
         if (data !== undefined) {
             if (typeof data === 'string') {
                 if (data.length !== 40) throw new Error('Hex string must be 40 characters');
-                let i = data.length;
+                let i = 0;
                 for (let j = 0; j < 20; j++) {
-                    i -= 2;
-                    const hi = HEX_MAP[data[i + 1]] ?? 0;
-                    const lo = HEX_MAP[data[i]] ?? 0;
+                    const hi = HEX_MAP[data[i]] ?? 0;
+                    const lo = HEX_MAP[data[i + 1]] ?? 0;
                     this.m_data[j] = (hi << 4) | lo;
+                    i += 2;
                 }
             } else {
                 if (data.length !== 20) throw new Error('Data must be 20 bytes');
