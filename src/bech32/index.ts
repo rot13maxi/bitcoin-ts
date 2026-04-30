@@ -78,6 +78,7 @@ function createChecksum(encoding: Encoding, hrp: string, data: Uint8Array): Uint
     }
     
     const encodingConstant = encoding === Encoding.BECH32M ? 0x2bc830a3 : 1;
+    polymod ^= encodingConstant;
     const result = new Uint8Array(6);
     for (let i = 0; i < 6; i++) {
         result[i] = (polymod >> (5 * (5 - i))) & 31;
@@ -183,7 +184,10 @@ export function Decode(str: string, limit: CharLimit = CharLimit.BECH32): Decode
     const result = new DecodeResult();
     
     if (str.length < 8 || str.length > limit) return result;
-    if (str.toLowerCase() !== str && str.toUpperCase() !== str) return result;
+    
+    // Validate mixed case BEFORE lowercasing
+    // Reject if string contains BOTH lowercase and uppercase letters (mixed case)
+    if (/[a-z]/.test(str) && /[A-Z]/.test(str)) return result;
     
     str = str.toLowerCase();
     
@@ -214,18 +218,18 @@ export function Decode(str: string, limit: CharLimit = CharLimit.BECH32): Decode
         data[i] = CHARSET.indexOf(dataStr[i]);
     }
     
-    // Check checksum
-    if (!verifyChecksum(Encoding.BECH32, hrp, data)) {
-        if (verifyChecksum(Encoding.BECH32M, hrp, data)) {
-            result.encoding = Encoding.BECH32M;
-        } else {
-            return result;
-        }
-    } else {
+    // Set HRP before checksum check (BUG 1 fix: HRP must be preserved even if checksum fails)
+    result.hrp = hrp;
+    
+    // Check checksum - verify both BECH32 and BECH32M (BUG 2 fix)
+    if (verifyChecksum(Encoding.BECH32, hrp, data)) {
         result.encoding = Encoding.BECH32;
+    } else if (verifyChecksum(Encoding.BECH32M, hrp, data)) {
+        result.encoding = Encoding.BECH32M;
+    } else {
+        return result;
     }
     
-    result.hrp = hrp;
     result.data = data.slice(0, data.length - 6);
     
     return result;
