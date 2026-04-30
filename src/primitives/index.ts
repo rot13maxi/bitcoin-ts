@@ -7,8 +7,14 @@
  * Bitcoin Core primitive types
  */
 
-import { Stream, serializeUInt32LE, unserializeUInt32LE, serializeInt64LE, unserializeInt64LE } from '../serialize';
-import { uint256, Txid, Wtxid } from '../uint256';
+import {
+  Stream,
+  serializeUInt32LE,
+  unserializeUInt32LE,
+  serializeInt64LE,
+  unserializeInt64LE,
+} from "../serialize";
+import { uint256, Txid, Wtxid } from "../uint256";
 
 export const COIN = 100000000n;
 export const SATOSHI = 1n;
@@ -16,39 +22,39 @@ export const SATOSHI = 1n;
 export type CAmount = bigint;
 
 export class COutPoint {
-    static readonly NULL_INDEX = 0xffffffff;
+  static readonly NULL_INDEX = 0xffffffff;
 
-    hash: Txid;
-    n: number;
+  hash: Txid;
+  n: number;
 
-    constructor(hash?: Txid, n?: number) {
-        this.hash = hash ?? new Txid();
-        this.n = n ?? COutPoint.NULL_INDEX;
-    }
+  constructor(hash?: Txid, n?: number) {
+    this.hash = hash ?? new Txid();
+    this.n = n ?? COutPoint.NULL_INDEX;
+  }
 
-    setNull(): void {
-        this.hash.setNull();
-        this.n = COutPoint.NULL_INDEX;
-    }
+  setNull(): void {
+    this.hash.setNull();
+    this.n = COutPoint.NULL_INDEX;
+  }
 
-    isNull(): boolean {
-        return this.hash.isNull() && this.n === COutPoint.NULL_INDEX;
-    }
+  isNull(): boolean {
+    return this.hash.isNull() && this.n === COutPoint.NULL_INDEX;
+  }
 
-    serialize(stream: Stream): void {
-        stream.write(this.hash.data());
-        serializeUInt32LE(stream, this.n);
-    }
+  serialize(stream: Stream): void {
+    stream.write(this.hash.data());
+    serializeUInt32LE(stream, this.n);
+  }
 
-    unserialize(stream: Stream): void {
-        const data = stream.read(32);
-        this.hash = new Txid(data);
-        this.n = unserializeUInt32LE(stream);
-    }
+  unserialize(stream: Stream): void {
+    const data = stream.read(32);
+    this.hash = new Txid(data);
+    this.n = unserializeUInt32LE(stream);
+  }
 
-    toString(): string {
-        return `${this.hash.toString()}:${this.n}`;
-    }
+  toString(): string {
+    return `${this.hash.toString()}:${this.n}`;
+  }
 }
 
 export const SEQUENCE_FINAL = 0xffffffff;
@@ -59,241 +65,248 @@ export const SEQUENCE_LOCKTIME_MASK = 0x0000ffff;
 export const SEQUENCE_LOCKTIME_GRANULARITY = 9;
 
 export class CTxIn {
-    prevout: COutPoint;
-    scriptSig: Uint8Array;
-    nSequence: number;
-    scriptWitness: CScriptWitness;
+  prevout: COutPoint;
+  scriptSig: Uint8Array;
+  nSequence: number;
+  scriptWitness: CScriptWitness;
 
-    constructor(prevout?: COutPoint, scriptSig?: Uint8Array, nSequence?: number) {
-        this.prevout = prevout ?? new COutPoint();
-        this.scriptSig = scriptSig ?? new Uint8Array(0);
-        this.nSequence = nSequence ?? SEQUENCE_FINAL;
-        this.scriptWitness = new CScriptWitness();
-    }
+  constructor(prevout?: COutPoint, scriptSig?: Uint8Array, nSequence?: number) {
+    this.prevout = prevout ?? new COutPoint();
+    this.scriptSig = scriptSig ?? new Uint8Array(0);
+    this.nSequence = nSequence ?? SEQUENCE_FINAL;
+    this.scriptWitness = new CScriptWitness();
+  }
 
-    serialize(stream: Stream): void {
-        this.prevout.serialize(stream);
-        stream.write(this.scriptSig);
-        serializeUInt32LE(stream, this.nSequence);
-    }
+  serialize(stream: Stream): void {
+    this.prevout.serialize(stream);
+    stream.write(this.scriptSig);
+    serializeUInt32LE(stream, this.nSequence);
+  }
 
-    unserialize(stream: Stream): void {
-        this.prevout = new COutPoint();
-        this.prevout.unserialize(stream);
-        const scriptSigLen = stream.readCompactSize();
-        this.scriptSig = stream.read(scriptSigLen);
-        this.nSequence = unserializeUInt32LE(stream);
-    }
+  unserialize(stream: Stream): void {
+    this.prevout = new COutPoint();
+    this.prevout.unserialize(stream);
+    const scriptSigLen = stream.readCompactSize();
+    this.scriptSig = stream.read(scriptSigLen);
+    this.nSequence = unserializeUInt32LE(stream);
+  }
 
-    toString(): string {
-        return `CTxIn(prevout=${this.prevout.toString()}, nSequence=${this.nSequence})`;
-    }
+  toString(): string {
+    return `CTxIn(prevout=${this.prevout.toString()}, nSequence=${this.nSequence})`;
+  }
 }
 
 export class CTxOut {
-    nValue: CAmount;
-    scriptPubKey: Uint8Array;
+  nValue: CAmount;
+  scriptPubKey: Uint8Array;
 
-    constructor(nValue?: CAmount, scriptPubKey?: Uint8Array) {
-        this.nValue = nValue ?? -1n;
-        this.scriptPubKey = scriptPubKey ?? new Uint8Array(0);
-    }
+  constructor(nValue?: CAmount, scriptPubKey?: Uint8Array) {
+    this.nValue = nValue ?? -1n;
+    this.scriptPubKey = scriptPubKey ?? new Uint8Array(0);
+  }
 
-    setNull(): void {
-        this.nValue = -1n;
-        this.scriptPubKey = new Uint8Array(0);
-    }
+  setNull(): void {
+    this.nValue = -1n;
+    this.scriptPubKey = new Uint8Array(0);
+  }
 
-    isNull(): boolean {
-        return this.nValue === -1n;
-    }
+  isNull(): boolean {
+    return this.nValue === -1n;
+  }
 
-    serialize(stream: Stream): void {
-        serializeInt64LE(stream, this.nValue);
-        stream.writeCompactSize(this.scriptPubKey.length);
-        stream.write(this.scriptPubKey);
-    }
+  serialize(stream: Stream): void {
+    serializeInt64LE(stream, this.nValue);
+    stream.writeCompactSize(this.scriptPubKey.length);
+    stream.write(this.scriptPubKey);
+  }
 
-    unserialize(stream: Stream): void {
-        this.nValue = unserializeInt64LE(stream);
-        const scriptPubKeyLen = stream.readCompactSize();
-        this.scriptPubKey = stream.read(scriptPubKeyLen);
-    }
+  unserialize(stream: Stream): void {
+    this.nValue = unserializeInt64LE(stream);
+    const scriptPubKeyLen = stream.readCompactSize();
+    this.scriptPubKey = stream.read(scriptPubKeyLen);
+  }
 
-    toString(): string {
-        return `CTxOut(value=${this.nValue})`;
-    }
+  toString(): string {
+    return `CTxOut(value=${this.nValue})`;
+  }
 }
 
 export class CScriptWitness {
-    stack: Uint8Array[];
+  stack: Uint8Array[];
 
-    constructor() {
-        this.stack = [];
-    }
+  constructor() {
+    this.stack = [];
+  }
 
-    isNull(): boolean {
-        return this.stack.length === 0;
-    }
+  isNull(): boolean {
+    return this.stack.length === 0;
+  }
 
-    serialize(stream: Stream): void {
-        stream.writeCompactSize(this.stack.length);
-        for (const item of this.stack) {
-            stream.writeCompactSize(item.length);
-            stream.write(item);
-        }
+  serialize(stream: Stream): void {
+    stream.writeCompactSize(this.stack.length);
+    for (const item of this.stack) {
+      stream.writeCompactSize(item.length);
+      stream.write(item);
     }
+  }
 
-    unserialize(stream: Stream): void {
-        const count = stream.readCompactSize();
-        this.stack = [];
-        for (let i = 0; i < count; i++) {
-            const itemLen = stream.readCompactSize();
-            this.stack.push(stream.read(itemLen));
-        }
+  unserialize(stream: Stream): void {
+    const count = stream.readCompactSize();
+    this.stack = [];
+    for (let i = 0; i < count; i++) {
+      const itemLen = stream.readCompactSize();
+      this.stack.push(stream.read(itemLen));
     }
+  }
 }
 
 export interface TransactionSerParams {
-    allowWitness: boolean;
+  allowWitness: boolean;
 }
 
 export const TX_WITH_WITNESS: TransactionSerParams = { allowWitness: true };
 export const TX_NO_WITNESS: TransactionSerParams = { allowWitness: false };
 
 export class CMutableTransaction {
-    vin: CTxIn[];
-    vout: CTxOut[];
-    version: number;
-    nLockTime: number;
+  vin: CTxIn[];
+  vout: CTxOut[];
+  version: number;
+  nLockTime: number;
 
-    constructor() {
-        this.vin = [];
-        this.vout = [];
-        this.version = 2;
-        this.nLockTime = 0;
-    }
+  constructor() {
+    this.vin = [];
+    this.vout = [];
+    this.version = 2;
+    this.nLockTime = 0;
+  }
 
-    hasWitness(): boolean {
-        for (const input of this.vin) {
-            if (!input.scriptWitness.isNull()) {
-                return true;
-            }
-        }
-        return false;
+  hasWitness(): boolean {
+    for (const input of this.vin) {
+      if (!input.scriptWitness.isNull()) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    serialize(stream: Stream): void {
-        const params = stream.getParams<TransactionSerParams>() ?? TX_WITH_WITNESS;
-        serializeTransaction(this, stream, params);
-    }
+  serialize(stream: Stream): void {
+    const params = stream.getParams<TransactionSerParams>() ?? TX_WITH_WITNESS;
+    serializeTransaction(this, stream, params);
+  }
 
-    getHash(): Txid {
-        return new Txid();
-    }
+  getHash(): Txid {
+    return new Txid();
+  }
 }
 
 export class CTransaction {
-    static readonly CURRENT_VERSION = 2;
+  static readonly CURRENT_VERSION = 2;
 
-    readonly vin: readonly CTxIn[];
-    readonly vout: readonly CTxOut[];
-    readonly version: number;
-    readonly nLockTime: number;
-    private readonly m_hasWitness: boolean;
-    private readonly m_hash: Txid;
-    private readonly m_witnessHash: Wtxid;
+  readonly vin: readonly CTxIn[];
+  readonly vout: readonly CTxOut[];
+  readonly version: number;
+  readonly nLockTime: number;
+  private readonly m_hasWitness: boolean;
+  private readonly m_hash: Txid;
+  private readonly m_witnessHash: Wtxid;
 
-    constructor(tx: CMutableTransaction) {
-        this.vin = Object.freeze(tx.vin.slice());
-        this.vout = Object.freeze(tx.vout.slice());
-        this.version = tx.version;
-        this.nLockTime = tx.nLockTime;
-        this.m_hasWitness = tx.hasWitness();
-        this.m_hash = new Txid();
-        this.m_witnessHash = new Wtxid();
+  constructor(tx: CMutableTransaction) {
+    this.vin = Object.freeze(tx.vin.slice());
+    this.vout = Object.freeze(tx.vout.slice());
+    this.version = tx.version;
+    this.nLockTime = tx.nLockTime;
+    this.m_hasWitness = tx.hasWitness();
+    this.m_hash = new Txid();
+    this.m_witnessHash = new Wtxid();
+  }
+
+  isNull(): boolean {
+    return this.vin.length === 0 && this.vout.length === 0;
+  }
+
+  getHash(): Txid {
+    return this.m_hash;
+  }
+
+  getWitnessHash(): Wtxid {
+    return this.m_witnessHash;
+  }
+
+  getValueOut(): CAmount {
+    let total = 0n;
+    for (const output of this.vout) {
+      total += output.nValue;
     }
+    return total;
+  }
 
-    isNull(): boolean {
-        return this.vin.length === 0 && this.vout.length === 0;
-    }
+  computeTotalSize(): number {
+    const baseSize =
+      4 +
+      this.vin.length * 32 +
+      this.vin.length * 4 +
+      this.vout.length * 8 +
+      this.vout.reduce((sum, out) => sum + out.scriptPubKey.length + 8, 0) +
+      4;
+    return baseSize;
+  }
 
-    getHash(): Txid {
-        return this.m_hash;
-    }
+  isCoinBase(): boolean {
+    return this.vin.length === 1 && this.vin[0].prevout.isNull();
+  }
 
-    getWitnessHash(): Wtxid {
-        return this.m_witnessHash;
-    }
+  hasWitness(): boolean {
+    return this.m_hasWitness;
+  }
 
-    getValueOut(): CAmount {
-        let total = 0n;
-        for (const output of this.vout) {
-            total += output.nValue;
-        }
-        return total;
-    }
-
-    computeTotalSize(): number {
-        const baseSize = 4 + this.vin.length * 32 + this.vin.length * 4 + 
-            this.vout.length * 8 + this.vout.reduce((sum, out) => sum + out.scriptPubKey.length + 8, 0) + 4;
-        return baseSize;
-    }
-
-    isCoinBase(): boolean {
-        return this.vin.length === 1 && this.vin[0].prevout.isNull();
-    }
-
-    hasWitness(): boolean {
-        return this.m_hasWitness;
-    }
-
-    toString(): string {
-        return `CTransaction(hash=${this.m_hash.toString()})`;
-    }
+  toString(): string {
+    return `CTransaction(hash=${this.m_hash.toString()})`;
+  }
 }
 
 function serializeTransaction<T extends CMutableTransaction>(
-    tx: T,
-    stream: Stream,
-    params: TransactionSerParams
+  tx: T,
+  stream: Stream,
+  params: TransactionSerParams,
 ): void {
-    serializeUInt32LE(stream, tx.version);
-    let flags = 0;
+  serializeUInt32LE(stream, tx.version);
+  let flags = 0;
 
-    if (params.allowWitness && tx.hasWitness()) {
-        flags |= 1;
-    }
+  if (params.allowWitness && tx.hasWitness()) {
+    flags |= 1;
+  }
 
-    if (flags !== 0) {
-        stream.writeCompactSize(0);
-        stream.write(new Uint8Array([flags]));
-    }
+  if (flags !== 0) {
+    stream.writeCompactSize(0);
+    stream.write(new Uint8Array([flags]));
+  }
 
-    stream.writeCompactSize(tx.vin.length);
+  stream.writeCompactSize(tx.vin.length);
+  for (const input of tx.vin) {
+    input.serialize(stream);
+  }
+
+  stream.writeCompactSize(tx.vout.length);
+  for (const output of tx.vout) {
+    output.serialize(stream);
+  }
+
+  if (flags & 1) {
     for (const input of tx.vin) {
-        input.serialize(stream);
+      input.scriptWitness.serialize(stream);
     }
+  }
 
-    stream.writeCompactSize(tx.vout.length);
-    for (const output of tx.vout) {
-        output.serialize(stream);
-    }
-
-    if (flags & 1) {
-        for (const input of tx.vin) {
-            input.scriptWitness.serialize(stream);
-        }
-    }
-
-    serializeUInt32LE(stream, tx.nLockTime);
+  serializeUInt32LE(stream, tx.nLockTime);
 }
 
 export type CTransactionRef = CTransaction;
 
-export function makeTransactionRef(tx: CMutableTransaction | CTransaction): CTransactionRef {
-    if (tx instanceof CMutableTransaction) {
-        return new CTransaction(tx);
-    }
-    return tx;
+export function makeTransactionRef(
+  tx: CMutableTransaction | CTransaction,
+): CTransactionRef {
+  if (tx instanceof CMutableTransaction) {
+    return new CTransaction(tx);
+  }
+  return tx;
 }

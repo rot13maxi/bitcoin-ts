@@ -11,59 +11,61 @@
 /**
  * Lifetime bounds annotation (TypeScript uses reference semantics, so this is a no-op)
  */
-export const LIFETIMEBOUND = '';
+export const LIFETIMEBOUND = "";
 
 /**
  * Always inline hint (TypeScript always inlines, so this is a no-op)
  */
-export function ALWAYS_INLINE<T extends (...args: unknown[]) => unknown>(fn: T): T {
-    return fn;
+export function ALWAYS_INLINE<T extends (...args: unknown[]) => unknown>(
+  fn: T,
+): T {
+  return fn;
 }
 
 /**
  * Fallthrough annotation - used to suppress warnings
  */
 export function FALLTHROUGH(): void {
-    // No-op
+  // No-op
 }
 
 /**
  * Likely/unlikely branch hints (TypeScript doesn't support these)
  */
 export function LIKELY(x: boolean): boolean {
-    return x;
+  return x;
 }
 
 export function UNLIKELY(x: boolean): boolean {
-    return x;
+  return x;
 }
 
 /**
  * Noexcept specifier
  */
 export function NOEXCEPT<T extends (...args: unknown[]) => unknown>(fn: T): T {
-    return fn;
+  return fn;
 }
 
 /**
  * Maybe unused annotation
  */
 export function MAYBE_UNUSED<T>(x: T): T {
-    return x;
+  return x;
 }
 
 /**
  * Returns the number of elements in a static array
  */
 export function ARRAY_SIZE(arr: readonly unknown[]): number {
-    return arr.length;
+  return arr.length;
 }
 
 /**
  * Static assert
  */
 export function static_assert(condition: boolean, message?: string): void {
-    if (!condition) {
-        throw new Error(message ?? 'Static assertion failed');
-    }
+  if (!condition) {
+    throw new Error(message ?? "Static assertion failed");
+  }
 }

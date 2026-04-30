@@ -8,36 +8,36 @@
  */
 
 // Re-export all modules
-export * from './uint256';
-export * from './arith_uint256';
-export * from './primitives';
-export * from './serialize';
-export * from './span';
-export * from './prevector';
-export { tf_format as format } from './util';
-export * from './tinyformat';
-export * from './compat';
-export * from './script/addresstype';
+export * from "./uint256";
+export * from "./arith_uint256";
+export * from "./primitives";
+export * from "./serialize";
+export * from "./span";
+export * from "./prevector";
+export { tf_format as format } from "./util";
+export * from "./tinyformat";
+export * from "./compat";
+export * from "./script/addresstype";
 
 // Layer 1 - Address/Encoding
-export * from './crypto';
-export * from './hash';
-export * from './pubkey';
-export * from './bech32';
-export * from './base58';
-export * from './compressor';
-export * from './key_io';
+export * from "./crypto";
+export * from "./hash";
+export * from "./pubkey";
+export * from "./bech32";
+export * from "./base58";
+export * from "./compressor";
+export * from "./key_io";
 
 // Attributes - avoid naming conflicts
-import * as attributesModule from './attributes';
+import * as attributesModule from "./attributes";
 export const {
-    LIFETIMEBOUND: BTC_LIFETIMEBOUND,
-    ALWAYS_INLINE: BTC_ALWAYS_INLINE,
-    FALLTHROUGH: BTC_FALLTHROUGH,
-    LIKELY: BTC_LIKELY,
-    UNLIKELY: BTC_UNLIKELY,
-    NOEXCEPT: BTC_NOEXCEPT,
-    MAYBE_UNUSED: BTC_MAYBE_UNUSED,
-    ARRAY_SIZE: BTC_ARRAY_SIZE,
-    static_assert: BTC_static_assert
+  LIFETIMEBOUND: BTC_LIFETIMEBOUND,
+  ALWAYS_INLINE: BTC_ALWAYS_INLINE,
+  FALLTHROUGH: BTC_FALLTHROUGH,
+  LIKELY: BTC_LIKELY,
+  UNLIKELY: BTC_UNLIKELY,
+  NOEXCEPT: BTC_NOEXCEPT,
+  MAYBE_UNUSED: BTC_MAYBE_UNUSED,
+  ARRAY_SIZE: BTC_ARRAY_SIZE,
+  static_assert: BTC_static_assert,
 } = attributesModule;
