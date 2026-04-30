@@ -20,9 +20,10 @@ describe('uint256 — getHex roundtrip', () => {
         expect(uint256.ZERO.getHex()).toBe('0'.repeat(64));
     });
 
-    it('getHex on ONE shows little-endian byte order (lowest-order byte first)', () => {
-        // ONE: m_data[0]=1, others=0. getHex() reverses for display → bytes shown as LE: [1,0,0,...]
-        expect(uint256.ONE.getHex()).toBe('01' + '0'.repeat(62));
+    it('getHex on ONE shows the value 1 in correct position', () => {
+        // ONE: m_data[31]=1 (LE: value 1 at last byte), others=0.
+        // getHex() reverses array → m_data[31]=1 shown first → '000...01'
+        expect(uint256.ONE.getHex()).toBe('0'.repeat(63) + '1');
     });
 
     it('Txid and Wtxid subclasses store bytes same as uint256', () => {
@@ -34,14 +35,9 @@ describe('uint256 — getHex roundtrip', () => {
     });
 });
 
-describe('uint256 — storage vs display (known: byte reversal bug)', () => {
-    // NOTE: uint256 stores bytes in input order (big-endian). getHex() reverses for
-    // display (matching Bitcoin Core's uint256::GetHex which reverses for hex output).
-    // The fromHex() method ALSO reverses during parsing. So input hex → reversed bytes
-    // → getHex() reverses again → display order = input order. This makes uint256's
-    // internal storage inconsistent (big-endian input, but the reversal means bytes
-    // are stored in the order they appear in the hex string). See bi-yfq for the full bug.
-});
+// NOTE: uint256 stores bytes in LE order internally. getHex() returns hex in natural order.
+// fromHex() parses hex backward (matching Bitcoin Core's SetHex). Together, fromHex+getHex
+// roundtrip correctly. See bi-yfq (closed) for the history.
 
 describe('uint256 — construction from various types', () => {
     it('construct from number 0', () => {
@@ -52,19 +48,19 @@ describe('uint256 — construction from various types', () => {
     it('construct from number 1', () => {
         const n = new uint256(1);
         expect(n.isNull()).toBe(false);
-        expect(n.getHex()).toBe('01' + '0'.repeat(62));
+        // Constructor stores value 1 at m_data[31] (LE). getHex() reverses → '...01'
+        expect(n.getHex()).toBe('0'.repeat(63) + '1');
     });
 
     it('construct from Uint8Array stores data directly', () => {
-        // uint256.fromHex reverses bytes, but Uint8Array constructor does NOT reverse.
-        // So m_data[0] = 0xab, m_data[1] = 0xcd.
-        // getHex() reverses for display → bytes[31..0] shown as hex → ...cdab...
+        // uint256 fromHex reverses bytes, but Uint8Array constructor does NOT reverse.
+        // So m_data[0] = 0xab, m_data[1] = 0xcd, ..., m_data[31] = 0xab, m_data[30] = 0xcd.
+        // getHex() reverses full array → bytes[31..0] shown → '...cdab'
         const data = new Uint8Array(32);
         data[0] = 0xab;
         data[1] = 0xcd;
         const hash = new uint256(data);
-        // With no reversal in getHex: display bytes 0..31 in order → 'abcd' at start
-        expect(hash.getHex()).toBe('abcd' + '0'.repeat(60));
+        expect(hash.getHex()).toBe('0'.repeat(60) + 'cdab');
     });
 
     it('fromHex with invalid length returns null', () => {

@@ -133,12 +133,12 @@ describe('arith_uint256 — getHex (bug: byte reversal)', () => {
         expect(a.getHex().length).toBe(64);
     });
 
-    it('getHex for value 1: starts with 01 (no byte reversal)', () => {
-        // arith_uint256 stores value in little-endian 32-bit words: pn[0]=1, others=0
-        // bytes[0]=0x01, bytes[1..3]=0x00, ...
-        // getHex() displays in stored order → first two chars = '01'
+    it('getHex for value 1: ends with 01 (LE display)', () => {
+        // arith_uint256 stores value in LE 32-bit words: pn[0]=1, others=0.
+        // getHex() reverses the full byte array. The value 1 is at byte[0], which
+        // is at the END of the reversed array → hex ends with '01'.
         const a = new arith_uint256(1);
-        expect(a.getHex().slice(0, 2)).toBe('01');
+        expect(a.getHex().slice(-2)).toBe('01');
     });
 
     it('getHex is a valid 64-char hex string', () => {
@@ -146,11 +146,12 @@ describe('arith_uint256 — getHex (bug: byte reversal)', () => {
         expect(a.getHex()).toMatch(/^[0-9a-f]{64}$/);
     });
 
-    it('getHex on value 0x0100 shows hex starting 0100 (no reversal)', () => {
-        // Value 256 = 0x0100. In LE: bytes[0]=0x00, bytes[1]=0x01, rest=0
-        // getHex() displays in stored order → '0100' + zeros
+    it('getHex on value 0x0100 shows the value at the end', () => {
+        // Value 256 = 0x0100. pn[0]=0x0100 (bytes[0]=0x00, bytes[1]=0x01), others=0.
+        // getHex() reverses the byte array. The value appears at the END of the hex string.
         const a = new arith_uint256(0x0100n);
-        expect(a.getHex().startsWith('0100')).toBe(true);
+        expect(a.getHex().length).toBe(64);
+        expect(a.getHex().endsWith('0100')).toBe(true);
     });
 });
 
@@ -246,9 +247,10 @@ describe('arith_uint256 — compact encoding (getCompact / setCompact)', () => {
         expect(a.getCompact()).toBe(0x01000000);
     });
 
-    it('getCompact(1) = 0x01000001', () => {
+    it('getCompact(1) = 0x01010000', () => {
+        // nSize=1, nCompact=1<<16=0x010000, top byte=1 → 0x01010000
         const a = new arith_uint256(1);
-        expect(a.getCompact()).toBe(0x01000001);
+        expect(a.getCompact()).toBe(0x01010000);
     });
 });
 

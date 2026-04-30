@@ -129,8 +129,10 @@ export abstract class BaseBlob {
     }
 
     getHex(): string {
-        // uint256 convention: display bytes in the order they are stored (no reversal).
-        // getHex() is overridden in uint160 to preserve Bitcoin Core's uint160 convention.
+        // uint256 stores bytes in little-endian (value 1 → m_data[31] = 1).
+        // getHex() returns hex in natural order (byte[31] first → value displayed as big-endian hex).
+        // This also makes fromHex roundtrip work: fromHex parses hex backward into bytes,
+        // and getHex() reads them back in forward order.
         return bytesToHex(this.m_data);
     }
 
@@ -164,6 +166,8 @@ export class uint160 extends BaseBlob {
                 }
             } else {
                 if (data.length !== 20) throw new Error('Data must be 20 bytes');
+                // Uint8Array constructor: store in the same order as the fromHex convention
+                // (which parses hex backward). So we store forward (don't reverse).
                 this.m_data.set(data);
             }
         }
@@ -175,8 +179,8 @@ export class uint160 extends BaseBlob {
     }
 
     /**
-     * uint160 stores bytes in input order (big-endian, matching Bitcoin Core's uint160).
-     * getHex() must reverse for display to match Bitcoin Core's uint160::GetHex.
+     * uint160 stores bytes in the same order as uint256 (parsed backward from hex).
+     * getHex() reverses to match Bitcoin Core's uint160::GetHex.
      */
     getHex(): string {
         const reversed = new Uint8Array(this.WIDTH);
@@ -203,10 +207,12 @@ export class uint256 extends BaseBlob {
                 if (value === 0) {
                     // Already initialized to zeros
                 } else if (value === 1) {
-                    this.m_data[0] = 1;
+                    // Store value 1 at the least-significant byte position (m_data[31])
+                    this.m_data[31] = 1;
                 } else {
+                    // Store number in little-endian: value 1 → m_data[31], value 256 → m_data[30], etc.
                     let remaining = value;
-                    for (let i = 0; i < 32 && remaining > 0; i++) {
+                    for (let i = 31; i >= 0 && remaining > 0; i--) {
                         this.m_data[i] = remaining & 0xff;
                         remaining = Math.floor(remaining / 256);
                     }
@@ -222,7 +228,12 @@ export class uint256 extends BaseBlob {
                 }
             } else {
                 if (value.length !== 32) throw new Error('Data must be 32 bytes');
-                this.m_data.set(value);
+                // Reverse to store in little-endian (matches number constructor convention)
+                const reversed = new Uint8Array(32);
+                for (let i = 0; i < 32; i++) {
+                    reversed[31 - i] = value[i];
+                }
+                this.m_data.set(reversed);
             }
         }
     }

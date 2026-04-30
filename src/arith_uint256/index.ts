@@ -29,8 +29,11 @@ export class BaseUint {
     }
 
     protected fromBigInt(value: bigint): void {
+        // Use bigint throughout to avoid Number's 53-bit integer precision limit.
+        // Number(val >> BigInt(i*32)) for large bigints silently truncates to IEEE 754.
+        const MASK = 0xffffffffn;
         for (let i = 0; i < this.WIDTH; i++) {
-            this.pn[i] = Number(value >> BigInt(i * 32)) & 0xffffffff;
+            this.pn[i] = Number((value >> BigInt(i * 32)) & MASK);
         }
     }
 
@@ -199,14 +202,14 @@ export class BaseUint {
     }
 
     getHex(): string {
-        // Build byte array from 32-bit little-endian words and display without reversal.
-        // arith_uint256 stores values in LE (pn[0]=lowest-order 32 bits), and we display
-        // in the same order — matching uint256's non-reversing getHex() convention.
+        // Build byte array from 32-bit little-endian words and display with full byte
+        // reversal — matching Bitcoin Core's arith_uint256::GetHex which reverses the
+        // internal byte array before hex output.
         const blob = new Uint8Array(this.WIDTH * 4);
         for (let i = 0; i < this.WIDTH; i++) {
             writeLE32(blob, i * 4, this.pn[i]);
         }
-        return bytesToHex(blob);
+        return bytesToHex(blob.reverse());
     }
 
     toString(): string {
