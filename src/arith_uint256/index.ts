@@ -158,45 +158,13 @@ export class BaseUint {
     }
 
     divide(other: BaseUint): BaseUint {
+        const a = this.toBigInt();
+        const b = other.toBigInt();
+        if (b === 0n) {
+            throw new UintError('Division by zero');
+        }
         const result = new BaseUint(this.WIDTH);
-        const div = other.clone();
-        const num = this.clone();
-        
-        if (num.bits() < div.bits()) {
-            return result;
-        }
-        
-        let shift = num.bits() - div.bits();
-        if (shift > 0) {
-            const idx = Math.floor(shift / 32);
-            const bit = shift % 32;
-            if (idx < div.WIDTH) {
-                div.pn[idx] |= (1 << bit);
-            }
-        }
-        
-        for (let s = shift; s >= 0; s--) {
-            if (num.compareTo(div) >= 0) {
-                const idx = Math.floor(s / 32);
-                const bit = s % 32;
-                if (idx < num.WIDTH) {
-                    num.pn[idx] |= (1 << bit);
-                }
-                const divResult = num.subtract(div);
-                num.pn.set(divResult.pn);
-            }
-            if (s > 0) {
-                const prevIdx = Math.floor((s - 1) / 32);
-                const prevBit = (s - 1) % 32;
-                if (prevIdx >= 0 && prevIdx < div.WIDTH) {
-                    div.pn[prevIdx] &= ~(1 << prevBit);
-                }
-            } else if (div.WIDTH > 0) {
-                div.pn[0] &= ~1;
-            }
-        }
-        
-        result.pn.set(num.pn);
+        result.fromBigInt(a / b);
         return result;
     }
 
