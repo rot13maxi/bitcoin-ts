@@ -273,17 +273,40 @@ export function unserializeUInt64LE(stream: Stream): bigint {
 }
 
 /**
- * Serialize a number (64-bit little-endian as bigint for precision)
+ * Serialize a signed 64-bit integer (little-endian)
+ * Uses two's complement representation for negative values
  */
 export function serializeInt64LE(stream: Stream, value: bigint): void {
-    serializeUInt64LE(stream, value);
+    const data = new Uint8Array(8);
+    // Convert to unsigned representation for storage
+    // For negative values, this gives the two's complement representation
+    const uvalue = value < 0n ? BigInt(2n ** 64n + value) : value;
+    
+    let remaining = uvalue;
+    for (let i = 0; i < 8; i++) {
+        data[i] = Number(remaining & 0xffn);
+        remaining >>= 8n;
+    }
+    stream.write(data);
 }
 
 /**
  * Unserialize a signed 64-bit integer (little-endian)
+ * Converts from two's complement representation
  */
 export function unserializeInt64LE(stream: Stream): bigint {
-    return unserializeUInt64LE(stream);
+    const data = stream.read(8);
+    let result = 0n;
+    for (let i = 7; i >= 0; i--) {
+        result = (result << 8n) | BigInt(data[i]);
+    }
+    
+    // Check if the sign bit is set (MSB of byte 7)
+    if (data[7] & 0x80) {
+        // Negative - convert from unsigned representation to signed
+        result = result - BigInt(2n ** 64n);
+    }
+    return result;
 }
 
 /**
