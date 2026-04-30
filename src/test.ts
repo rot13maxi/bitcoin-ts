@@ -23,6 +23,7 @@ import { EncodeBase58, DecodeBase58, EncodeBase58Check, DecodeBase58Check } from
 import { CompressAmount, DecompressAmount, CompressScript } from './compressor';
 import { encodeDestination, decodeDestination, isValidDestinationString, MAINNET, TESTNET, PKHash, WitnessPKHash } from './key_io';
 import { Uint8ArrayStream, serializeInt64LE, unserializeInt64LE } from './serialize';
+import { format as tf_format, strprintf, printf } from './tinyformat';
 
 // Test uint256 basic operations
 function test_uint256() {
@@ -371,6 +372,45 @@ function test_int64() {
     console.log('  Int64LE roundtrip: ' + (allPass ? 'PASS' : 'FAIL'));
 }
 
+function test_tinyformat() {
+    console.log('Testing tinyformat...');
+    
+    // Float precision tests (bug fix)
+    console.assert(tf_format('%.2f', 3.14159) === '3.14', 'float precision .2 failed');
+    console.assert(tf_format('%.3f', 2.5) === '2.500', 'float precision .3 failed');
+    console.assert(tf_format('%f', 3.14) === '3.140000', 'float default precision failed');
+    console.assert(tf_format('%.f', 3.14) === '3', 'float no precision failed');
+    console.assert(tf_format('%8.2f', 3.14) === '    3.14', 'float width+precision failed');
+    console.assert(tf_format('%-8.2f', 3.14) === '3.14    ', 'float left-align failed');
+    console.assert(tf_format('%+f', 3.14) === '+3.140000', 'float show-sign failed');
+    console.assert(tf_format('%+f', -3.14) === '-3.140000', 'float negative sign failed');
+    console.log('  Float formatting: PASS');
+    
+    // Pointer formatting tests (bug fix)
+    console.assert(tf_format('%p', 0x1234) === '0x1234', 'pointer basic failed');
+    console.assert(tf_format('%p', 0xABCD) === '0xabcd', 'pointer uppercase input failed');
+    console.assert(tf_format('%16p', 0x1234) === '          0x1234', 'pointer width failed');
+    console.assert(tf_format('%-16p', 0x1234) === '0x1234          ', 'pointer left-align failed');
+    console.log('  Pointer formatting: PASS');
+    
+    // Other format tests
+    console.assert(tf_format('%d', 42) === '42', 'integer d failed');
+    console.assert(tf_format('%i', -42) === '-42', 'integer i failed');
+    console.assert(tf_format('%x', 255) === 'ff', 'hex failed');
+    console.assert(tf_format('%X', 255) === 'FF', 'hex upper failed');
+    console.assert(tf_format('%s', 'hello') === 'hello', 'string failed');
+    console.assert(tf_format('%%') === '%', 'percent escape failed');
+    console.assert(tf_format('Hello %s, you have %d messages', 'Alice', 5) === 'Hello Alice, you have 5 messages', 'combined format failed');
+    console.log('  Other formats: PASS');
+    
+    // strprintf and printf
+    console.assert(strprintf('%.2f', 3.14159) === '3.14', 'strprintf failed');
+    console.assert(printf('%d', 42) === '42', 'printf failed');
+    console.log('  tinyformat helpers: PASS');
+    
+    console.log('  tinyformat tests passed!');
+}
+
 console.log('Running bitcoin-ts tests...\n');
 
 test_uint256();
@@ -387,5 +427,6 @@ test_base58();
 test_compressor();
 test_key_io();
 test_int64();
+test_tinyformat();
 
 console.log('\nAll tests passed!');
