@@ -231,12 +231,14 @@ export class BaseUint {
     }
 
     getHex(): string {
+        // Build byte array from 32-bit little-endian words and display without reversal.
+        // arith_uint256 stores values in LE (pn[0]=lowest-order 32 bits), and we display
+        // in the same order — matching uint256's non-reversing getHex() convention.
         const blob = new Uint8Array(this.WIDTH * 4);
         for (let i = 0; i < this.WIDTH; i++) {
             writeLE32(blob, i * 4, this.pn[i]);
         }
-        const reversed = blob.reverse();
-        return bytesToHex(reversed);
+        return bytesToHex(blob);
     }
 
     toString(): string {

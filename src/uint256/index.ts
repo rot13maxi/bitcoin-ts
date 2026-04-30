@@ -129,11 +129,9 @@ export abstract class BaseBlob {
     }
 
     getHex(): string {
-        const reversed = new Uint8Array(this.WIDTH);
-        for (let i = 0; i < this.WIDTH; i++) {
-            reversed[i] = this.m_data[this.WIDTH - 1 - i];
-        }
-        return bytesToHex(reversed);
+        // uint256 convention: display bytes in the order they are stored (no reversal).
+        // getHex() is overridden in uint160 to preserve Bitcoin Core's uint160 convention.
+        return bytesToHex(this.m_data);
     }
 
     toString(): string {
@@ -157,12 +155,12 @@ export class uint160 extends BaseBlob {
         if (data !== undefined) {
             if (typeof data === 'string') {
                 if (data.length !== 40) throw new Error('Hex string must be 40 characters');
-                let i = 0;
+                let i = data.length;
                 for (let j = 0; j < 20; j++) {
-                    const hi = HEX_MAP[data[i]] ?? 0;
-                    const lo = HEX_MAP[data[i + 1]] ?? 0;
+                    i -= 2;
+                    const hi = HEX_MAP[data[i + 1]] ?? 0;
+                    const lo = HEX_MAP[data[i]] ?? 0;
                     this.m_data[j] = (hi << 4) | lo;
-                    i += 2;
                 }
             } else {
                 if (data.length !== 20) throw new Error('Data must be 20 bytes');
@@ -174,6 +172,18 @@ export class uint160 extends BaseBlob {
     static fromHex(str: string): uint160 | null {
         if (!isHexString(str) || str.length !== 40) return null;
         return new uint160(str);
+    }
+
+    /**
+     * uint160 stores bytes in input order (big-endian, matching Bitcoin Core's uint160).
+     * getHex() must reverse for display to match Bitcoin Core's uint160::GetHex.
+     */
+    getHex(): string {
+        const reversed = new Uint8Array(this.WIDTH);
+        for (let i = 0; i < this.WIDTH; i++) {
+            reversed[i] = this.m_data[this.WIDTH - 1 - i];
+        }
+        return bytesToHex(reversed);
     }
 }
 
