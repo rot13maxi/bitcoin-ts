@@ -164,7 +164,15 @@ export function DecompressScript(nSize: number, compressed: CompressedScript): U
 }
 
 /**
+ * Maximum money value
+ */
+const MAX_MONEY = 21000000n * 100000000n;
+
+/**
  * Threshold values for amount compression
+ * THRESHOLD9 must be larger than the maximum possible mantissa value
+ * (which is the original amount minus the sum of thresholds) to enable
+ * correct roundtrip decompression. Using MAX_MONEY / 2 ensures this.
  */
 const THRESHOLD1 = 1n;
 const THRESHOLD2 = 2n;
@@ -174,12 +182,7 @@ const THRESHOLD5 = 5n;
 const THRESHOLD6 = 6n;
 const THRESHOLD7 = 7n;
 const THRESHOLD8 = 8n;
-const THRESHOLD9 = 9n;
-
-/**
- * Maximum money value
- */
-const MAX_MONEY = 21000000n * 100000000n;
+const THRESHOLD9 = MAX_MONEY / 2n;
 
 /**
  * Compress a satoshi amount
@@ -196,22 +199,20 @@ export function CompressAmount(nAmount: bigint): bigint {
     let exp = 0n;
     let mantissa = nAmount;
     const steps = [
-        { threshold: THRESHOLD9, step: 9n },
-        { threshold: THRESHOLD8, step: 8n },
-        { threshold: THRESHOLD7, step: 7n },
-        { threshold: THRESHOLD6, step: 6n },
-        { threshold: THRESHOLD5, step: 5n },
-        { threshold: THRESHOLD4, step: 4n },
-        { threshold: THRESHOLD3, step: 3n },
-        { threshold: THRESHOLD2, step: 2n },
+        { threshold: 9n, step: 9n },
+        { threshold: 8n, step: 8n },
+        { threshold: 7n, step: 7n },
+        { threshold: 6n, step: 6n },
+        { threshold: 5n, step: 5n },
+        { threshold: 4n, step: 4n },
+        { threshold: 3n, step: 3n },
+        { threshold: 2n, step: 2n },
     ];
     
     for (const { threshold, step } of steps) {
-        if (mantissa >= threshold) {
+        if (mantissa >= threshold + 1n) {
             mantissa -= threshold;
             exp += step;
-        } else {
-            break;
         }
     }
     
@@ -226,27 +227,35 @@ export function DecompressAmount(nCompressed: bigint): bigint {
         return 0n;
     }
     
-    // Decode exponent
-    let exp = 0n;
-    while (exp < 9n && nCompressed >= THRESHOLD9) {
-        nCompressed -= THRESHOLD9;
-        exp++;
-    }
+    // Extract the original exp and mantissa from compressed value
+    // compressed = mantissa + exp * THRESHOLD9
+    // where mantissa = compressed % THRESHOLD9
+    // and exp = compressed / THRESHOLD9
+    let exp = nCompressed / THRESHOLD9;
+    let mantissa = nCompressed % THRESHOLD9;
     
-    // Decode mantissa
-    let amount = nCompressed;
-    for (let i = 0n; i < exp; i++) {
-        amount += THRESHOLD9;
-    }
+    // Reverse the compression: add back thresholds where exp >= threshold
+    // Compression applied thresholds 9,8,7,6,5,4,3,2,1 in order when mantissa >= threshold+1
+    // So decompression processes them in reverse order
+    const steps = [
+        { threshold: 9n, step: 9n },
+        { threshold: 8n, step: 8n },
+        { threshold: 7n, step: 7n },
+        { threshold: 6n, step: 6n },
+        { threshold: 5n, step: 5n },
+        { threshold: 4n, step: 4n },
+        { threshold: 3n, step: 3n },
+        { threshold: 2n, step: 2n },
+        { threshold: 1n, step: 1n },
+    ];
     
-    // Add back base thresholds
-    for (let i = 0n; i < exp; i++) {
-        let base = THRESHOLD1;
-        for (let j = 0n; j < (9n - i - 1n); j++) {
-            base += THRESHOLD9;
+    for (const { threshold, step } of steps) {
+        // If exp >= threshold, it means this threshold was subtracted during compression
+        if (exp >= threshold) {
+            exp -= threshold;
+            mantissa += step;
         }
-        amount += base;
     }
     
-    return amount;
+    return mantissa;
 }
