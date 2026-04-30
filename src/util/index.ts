@@ -144,7 +144,7 @@ export function countLeadingZeros(data: Uint8Array | readonly number[]): number 
                 if ((byte & (1 << i)) === 0) {
                     count++;
                 } else {
-                    return count;
+                    break;
                 }
             }
         }
