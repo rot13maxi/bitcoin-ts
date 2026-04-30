@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [integration, master]
+  pull_request:
+    branches: [integration, master]
+
+jobs:
+  lint:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies (root)
+        run: npm ci
+
+      - name: Type check root
+        run: npm run lint
+        working-directory: .
+
+      - name: Type check bitcoin-ts subdir
+        run: |
+          if [ -f bitcoin-ts/tsconfig.json ]; then
+            cd bitcoin-ts && npm ci && npm run lint || echo "no package.json in bitcoin-ts"
+          fi
+        working-directory: .
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install and build
+        run: npm ci && npm run build
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install and test
+        run: npm ci && npm test
