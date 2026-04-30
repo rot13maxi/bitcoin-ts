@@ -25,7 +25,7 @@ import type { CNetAddr, CService } from "../netaddress";
 import { CAddress, ServiceFlags, Network } from "../protocol";
 
 // Re-export key types for consumers of this module
-export { CAddress, ServiceFlags, Network };
+export type { CAddress, ServiceFlags, Network };
 
 // AddrMan configuration constants
 export const ADDRMAN_TRIED_BUCKETS_PER_GROUP = 8;

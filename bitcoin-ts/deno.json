@@ -3,20 +3,22 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
     "lib": ["ES2020", "DOM"],
-    "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "isolatedModules": false,
     "noImplicitOverride": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
+  "imports": {
+    "@bitcoin/bitcoin-ts": "./src/index.ts"
+  },
+  "tasks": {
+    "test": "deno test --allow-all src/",
+    "check": "deno check --unstable-sloppy-imports src/",
+    "fmt": "deno fmt src/",
+    "lint": "deno lint src/"
+  },
   "exclude": ["node_modules", "dist"]
 }

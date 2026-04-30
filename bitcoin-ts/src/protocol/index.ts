@@ -479,7 +479,7 @@ import {
     INTERNAL_IN_IPV6_PREFIX,
 } from "../netaddress";
 
-export { Network, BIP155Network, CSubNet };
+export type { Network, BIP155Network, CSubNet };
 
 /** getdata message type flags */
 export const MSG_WITNESS_FLAG = 1 << 30;
