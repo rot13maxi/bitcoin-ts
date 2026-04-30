@@ -78,6 +78,7 @@ function createChecksum(encoding: Encoding, hrp: string, data: Uint8Array): Uint
     }
     
     const encodingConstant = encoding === Encoding.BECH32M ? 0x2bc830a3 : 1;
+    polymod ^= encodingConstant;
     const result = new Uint8Array(6);
     for (let i = 0; i < 6; i++) {
         result[i] = (polymod >> (5 * (5 - i))) & 31;
