@@ -22,6 +22,7 @@ import { Encode, Decode, Encoding, encodeSegWitAddress, decodeSegWitAddress } fr
 import { EncodeBase58, DecodeBase58, EncodeBase58Check, DecodeBase58Check } from './base58';
 import { CompressAmount, DecompressAmount, CompressScript } from './compressor';
 import { encodeDestination, decodeDestination, isValidDestinationString, MAINNET, TESTNET, PKHash, WitnessPKHash } from './key_io';
+import { Uint8ArrayStream, serializeInt64LE, unserializeInt64LE } from './serialize';
 
 // Test uint256 basic operations
 function test_uint256() {
@@ -343,6 +344,33 @@ function test_key_io() {
     console.log('  key_io tests passed!');
 }
 
+function test_int64() {
+    console.log('Testing Int64LE serialization...');
+    
+    const testValues = [
+        -123456789n,
+        -1n,
+        -9223372036854775808n, // MIN_INT64
+        0n,
+        1n,
+        123456789n,
+        9223372036854775807n, // MAX_INT64
+    ];
+    
+    let allPass = true;
+    for (const value of testValues) {
+        const stream = new Uint8ArrayStream();
+        serializeInt64LE(stream, value);
+        stream.setOffset(0);
+        const readBack = unserializeInt64LE(stream);
+        const pass = value === readBack;
+        if (!pass) allPass = false;
+        console.log(`  ${value.toString().padStart(22)} -> ${pass ? 'PASS' : 'FAIL'} (got ${readBack.toString()})`);
+    }
+    
+    console.log('  Int64LE roundtrip: ' + (allPass ? 'PASS' : 'FAIL'));
+}
+
 console.log('Running bitcoin-ts tests...\n');
 
 test_uint256();
@@ -358,5 +386,6 @@ test_bech32();
 test_base58();
 test_compressor();
 test_key_io();
+test_int64();
 
 console.log('\nAll tests passed!');
